@@ -36,7 +36,6 @@ def recognizing_characters(path):
             position.append('index')
         else:
             position.append('regular')
-    character_position = [(new_contours[i],position[i]) for i in range(len(new_contours))]
     #create a list of images
     list_images = []
     for c in range(len(new_contours)):
@@ -51,8 +50,9 @@ def recognizing_characters(path):
             list_images.remove(image)
         elif len(image) < 0.2*mean_len: #20% but it can be changed
             list_images.remove(image)
-    return {'list_images':list_images, 'contours': new_contours,
-            'contours_with_position': character_position}
+    character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
+    return {'list_images':list_images,
+            'images_with_position': character_position}
 
 
 def new_measurements(array):
@@ -62,12 +62,16 @@ def new_measurements(array):
     return resized_3
 
 def test_data(path):
-    list_images = recognizing_characters(path)
+    list_images = recognizing_characters(path)['list_images']
     list_images_resized = []
     for img in list_images:
         resized_img = new_measurements(img)
         list_images_resized.append(resized_img)
-
     return list_images_resized
 
+def test_data_with_positions(path):
+    images_with_position = recognizing_characters(path)['images_with_position']
+    return images_with_position
+
 #if __name__ == "__main__":
+#test
