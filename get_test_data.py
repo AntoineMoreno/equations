@@ -4,7 +4,7 @@ import tensorflow as tf
 
 def recognizing_characters(path):
     #read image
-    img_original = cv2.imread(path)
+    img_original = cv2.imread(path,-1)
     #transform to grays
     img_gray = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
     #transform to binary --> 90 for now but it can be changed
