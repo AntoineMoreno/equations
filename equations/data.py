@@ -1,12 +1,13 @@
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pathlib
 
 data_dir = pathlib.Path("../raw_data/data")
 
-def create_dataset(batch_size = 32,img_height = 45, img_width = 45):
+def create_dataset(data_dir= pathlib.Path("../raw_data/data"), batch_size = 32,img_height = 45, img_width = 45):
     """
     Return a train set and a val set
     """
@@ -26,11 +27,10 @@ def create_dataset(batch_size = 32,img_height = 45, img_width = 45):
         batch_size=batch_size)
     return train_ds, val_ds
 
-def get_class_name(train_ds):
-    return tuple(train_ds.class_names)
 
-#normalize
-#print figures
+
+#code for normalizing avaible in other file
+#idem for print figures
 
 def create_model():
     num_classes = 82
@@ -54,17 +54,17 @@ def compile_model(model):
         loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
         metrics=['accuracy'])
 
-def normalize(train_ds):
+def normalize(train_ds): #### problem
     normalization_layer = tf.keras.layers.Rescaling(1./255)
     normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
     image_batch, labels_batch = next(iter(normalized_ds))
     return image_batch, labels_batch
 
-def fit_model(model):
+def fit_model(model, train_ds, val_ds, epochs):
     hist = model.fit(
         train_ds,
         validation_data=val_ds,
-        epochs=3
+        epochs=epochs
     ).history
     return hist
 
@@ -82,6 +82,9 @@ def plot_graph(hist):
     plt.ylim([0,1])
     plt.plot(hist["accuracy"])
     plt.plot(hist["val_accuracy"])
+
+def get_class_name(train_ds):
+    return tuple(train_ds.class_names)
 
 def make_prediction(model, img, class_names):
     prediction_scores= model.predict(np.expand_dims(img, axis=0))
