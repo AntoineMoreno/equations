@@ -1,10 +1,11 @@
 #code to recognize singular characters in equations
 import cv2
 import tensorflow as tf
+import matplotlib.image as mpimg
 
 def recognizing_characters(path):
     #read image
-    img_original = cv2.imread(path)
+    img_original = mpimg.imread(path)
     #transform to grays
     img_gray = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
     #transform to binary --> 90 for now but it can be changed
@@ -45,11 +46,15 @@ def recognizing_characters(path):
     #create variables for size of full image and mean lenght and compare with the images in the list
     big_image_len = len(img_original)
     mean_len = sum([len(list_images[i]) for i in range(len(list_images))])/len(list_images)
+    deleted_index = []
     for image in list_images:
         if len(image) == big_image_len:
-            list_images.remove(image)
+            deleted_index.append(list_images.index(image))
         elif len(image) < 0.2*mean_len: #20% but it can be changed
-            list_images.remove(image)
+            deleted_index.append(list_images.index(image))
+    for i in deleted_index:
+        position.pop(deleted_index[i])
+        list_images.pop(deleted_index[i])
     character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
     return {'list_images':list_images,
             'images_with_position': character_position}
