@@ -1,5 +1,6 @@
 #code to recognize singular characters in equations
 import cv2
+import tensorflow as tf
 
 def recognizing_characters(path):
     #read image
@@ -13,7 +14,29 @@ def recognizing_characters(path):
     #sort contours
     list_tuples_min = [(contours[i],contours[i][:,0][:,0].min()) for i in range(len(contours))]
     list_tuples_min.sort(key=lambda x: x[1])
+    #extract the contours only
     new_contours = [list_tuples_min[i][0] for i in range(len(list_tuples_min))]
+    #add info about character position in the equation
+    full_image_h, full_image_w, full_image_channels = img_original.shape
+    tier1 = int(full_image_h/3)
+    tier2 = int(full_image_h/3)*2
+    tier3 = int(full_image_h/3)*3
+    list_min = []
+    list_max = []
+    for c in range(len(recognizing_characters('test3.jpeg'))):
+        max_y = max(recognizing_characters('test3.jpeg')[c][:,0][:,1])
+        min_y = min(recognizing_characters('test3.jpeg')[c][:,0][:,1])
+        list_min.append(min_y)
+        list_max.append(max_y)
+    position = []
+    for i in range(len(list_min)):
+        if list_min[i] < tier1 and list_max[i] < tier2:
+            position.append('exponent')
+        elif list_max[i] > tier2 and list_min[i] > tier1:
+            position.append('index')
+        else:
+            position.append('regular')
+    character_position = [(new_contours[i],position[i]) for i in range(len(new_contours))]
     #create a list of images
     list_images = []
     for c in range(len(new_contours)):
@@ -28,15 +51,15 @@ def recognizing_characters(path):
             list_images.remove(image)
         elif len(image) < 0.2*mean_len: #20% but it can be changed
             list_images.remove(image)
-    return list_images
+    return {'list_images':list_images, 'contours': new_contours,
+            'contours_with_position': character_position}
 
 
 def new_measurements(array):
     resized = cv2.resize(array, (45,45), interpolation = cv2.INTER_AREA)
-    resized_channel = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-    ret, img_resized = cv2.threshold(resized_channel,190,255,cv2.THRESH_BINARY)
-    return img_resized
-
+    resized_bw = tf.image.rgb_to_grayscale(resized)
+    resized_3  =  tf.image.grayscale_to_rgb(resized_bw)
+    return resized_3
 
 def test_data(path):
     list_images = recognizing_characters(path)
@@ -44,6 +67,7 @@ def test_data(path):
     for img in list_images:
         resized_img = new_measurements(img)
         list_images_resized.append(resized_img)
+
     return list_images_resized
 
 #if __name__ == "__main__":
