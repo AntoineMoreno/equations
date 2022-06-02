@@ -1,31 +1,17 @@
+#code to recognize singular characters in equations
 import cv2
 import tensorflow as tf
 import matplotlib.image as mpimg
-import numpy as np
-
 
 def recognizing_characters(path):
     #read image
     img_original = mpimg.imread(path)
-    #add a channels
-    if len(img_original.shape) < 3:
-        img_original = np.expand_dims(img_original, -1)
-    if len(img_original.shape) == 3 and img_original.shape[2] == 3:
-        img_new = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
-    else:
-        img_new = img_original.copy()
+    #transform to grays
+    img_gray = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
     #transform to binary --> 90 for now but it can be changed
-    ret, thresh = cv2.threshold(img_new,90,255,cv2.THRESH_BINARY)
+    ret, thresh = cv2.threshold(img_gray,90,255,cv2.THRESH_BINARY)
     #find contours, we can use none or simple as chain approx
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-    h_list = hierarchy[0].tolist()
-    contours = list(contours)
-    deleted_index = []
-    for i in h_list:
-        if i[-1] != 0:
-            deleted_index.append(h_list.index(i))
-    for d in sorted(deleted_index, reverse=True):
-        contours.pop(d)
     #sort contours
     list_tuples_min = [(contours[i],contours[i][:,0][:,0].min()) for i in range(len(contours))]
     list_tuples_min.sort(key=lambda x: x[1])
@@ -45,7 +31,7 @@ def recognizing_characters(path):
         list_max.append(max_y)
     position = []
     for i in range(len(list_min)):
-        if list_min[i] < tier1 and list_max[i] < int(1.5*tier1):
+        if list_min[i] < tier1 and list_max[i] < tier2:
             position.append('exponent')
         elif list_max[i] > tier2 and list_min[i] > tier1:
             position.append('index')
@@ -57,6 +43,18 @@ def recognizing_characters(path):
         x,y,w,h = cv2.boundingRect(new_contours[c])
         img = img_original.copy()[y:y+h,x:x+w]
         list_images.append(img)
+    #create variables for size of full image and mean lenght and compare with the images in the list
+    big_image_len = len(img_original)
+    mean_len = sum([len(list_images[i]) for i in range(len(list_images))])/len(list_images)
+    deleted_index = []
+    for image in list_images:
+        if len(image) == big_image_len:
+            deleted_index.append(list_images.index(image))
+        elif len(image) < 0.2*mean_len: #20% but it can be changed
+            deleted_index.append(list_images.index(image))
+    for i in deleted_index:
+        position.pop(deleted_index[i])
+        list_images.pop(deleted_index[i])
     character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
     return {'list_images':list_images,
             'images_with_position': character_position}
@@ -79,3 +77,6 @@ def test_data(path):
 def test_data_with_positions(path):
     images_with_position = recognizing_characters(path)['images_with_position']
     return images_with_position
+
+#if __name__ == "__main__":
+#test
