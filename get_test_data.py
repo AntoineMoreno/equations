@@ -1,10 +1,11 @@
 #code to recognize singular characters in equations
 import cv2
 import tensorflow as tf
+import matplotlib.image as mpimg
 
 def recognizing_characters(path):
     #read image
-    img_original = cv2.imread(path)
+    img_original = mpimg.imread(path)
     #transform to grays
     img_gray = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
     #transform to binary --> 90 for now but it can be changed
