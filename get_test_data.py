@@ -23,9 +23,9 @@ def recognizing_characters(path):
     tier3 = int(full_image_h/3)*3
     list_min = []
     list_max = []
-    for c in range(len(recognizing_characters('test3.jpeg'))):
-        max_y = max(recognizing_characters('test3.jpeg')[c][:,0][:,1])
-        min_y = min(recognizing_characters('test3.jpeg')[c][:,0][:,1])
+    for c in range(len(new_contours)):
+        max_y = max(new_contours[c][:,0][:,1])
+        min_y = min(new_contours[c][:,0][:,1])
         list_min.append(min_y)
         list_max.append(max_y)
     position = []
