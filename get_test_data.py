@@ -45,11 +45,15 @@ def recognizing_characters(path):
     #create variables for size of full image and mean lenght and compare with the images in the list
     big_image_len = len(img_original)
     mean_len = sum([len(list_images[i]) for i in range(len(list_images))])/len(list_images)
+    deleted_index = []
     for image in list_images:
         if len(image) == big_image_len:
-            list_images.remove(image)
+            deleted_index.append(list_images.index(image))
         elif len(image) < 0.2*mean_len: #20% but it can be changed
-            list_images.remove(image)
+            deleted_index.append(list_images.index(image))
+    for i in deleted_index:
+        position.pop(deleted_index[i])
+        list_images.pop(deleted_index[i])
     character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
     return {'list_images':list_images,
             'images_with_position': character_position}
