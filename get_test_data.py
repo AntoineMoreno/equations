@@ -50,7 +50,6 @@ def recognizing_characters(path):
             position.append('index')
         else:
             position.append('regular')
-    return new_contours,position
     #create a list of images
     list_images = []
     for c in range(len(new_contours)):
