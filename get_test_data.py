@@ -74,3 +74,4 @@ def test_data_with_positions(path):
     return images_with_position
 
 #if __name__ == "__main__":
+#test
