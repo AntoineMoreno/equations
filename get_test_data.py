@@ -57,7 +57,7 @@ def recognizing_characters(path):
     list_images = []
     for c in range(len(new_contours)):
         x,y,w,h = cv2.boundingRect(new_contours[c])
-        contour_drawing = cv2.drawContours(white_image.copy(), new_contours, c, (0,0,0), cv2.FILLED)
+        contour_drawing = cv2.drawContours(white_image.copy(), new_contours, c, (0,0,0), 10)
         img = contour_drawing[y:y+h,x:x+w]
         list_images.append(img)
     character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
