@@ -82,7 +82,6 @@ def three_channels(array):
 def test_data(path):
     list_images = recognizing_characters(path)['list_images']
     list_images_resized = [new_measurements(img) for img in list_images]
-#     return list_images_resized
     new_list_images = []
     for img in list_images_resized:
         if len(img.shape) < 3:
