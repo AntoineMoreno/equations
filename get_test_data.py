@@ -3,6 +3,7 @@ import tensorflow as tf
 import matplotlib.image as mpimg
 import numpy as np
 
+
 def recognizing_characters(path):
     #read image
     img_original = mpimg.imread(path)
@@ -13,6 +14,8 @@ def recognizing_characters(path):
         img_new = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
     else:
         img_new = img_original.copy()
+    #create a white image with same dimensions
+    white_image = np.ones(img_new.shape, dtype=np.uint8)*255
     #transform to binary --> 90 for now but it can be changed
     ret, thresh = cv2.threshold(img_new,90,255,cv2.THRESH_BINARY)
     #find contours, we can use none or simple as chain approx
@@ -54,12 +57,12 @@ def recognizing_characters(path):
     list_images = []
     for c in range(len(new_contours)):
         x,y,w,h = cv2.boundingRect(new_contours[c])
-        img = img_original.copy()[y:y+h,x:x+w]
+        contour_drawing = cv2.drawContours(white_image.copy(), new_contours, c, (0,0,0), cv2.FILLED)
+        img = contour_drawing[y:y+h,x:x+w]
         list_images.append(img)
     character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
     return {'list_images':list_images,
             'images_with_position': character_position}
-
 
 def new_measurements(array):
     resized = cv2.resize(array, (45,45), interpolation = cv2.INTER_AREA)
