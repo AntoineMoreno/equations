@@ -64,17 +64,35 @@ def recognizing_characters(path):
 
 def new_measurements(array):
     resized = cv2.resize(array, (45,45), interpolation = cv2.INTER_AREA)
-    resized_bw = tf.image.rgb_to_grayscale(resized)
-    resized_3  =  tf.image.grayscale_to_rgb(resized_bw)
+    return resized
+
+def add_channels(array):
+    return np.expand_dims(array, -1)
+
+def three_channels(array):
+    if array.shape[2] == 3:
+        resized_bw = cv2.cvtColor(array, cv2.COLOR_BGR2GRAY)
+        resized_3  =  cv2.cvtColor(resized_bw,cv2.COLOR_GRAY2RGB)
+    elif array.shape[2] == 1:
+        resized_3  =  cv2.cvtColor(array,cv2.COLOR_GRAY2RGB)
     return resized_3
 
 def test_data(path):
     list_images = recognizing_characters(path)['list_images']
-    list_images_resized = []
-    for img in list_images:
-        resized_img = new_measurements(img)
-        list_images_resized.append(resized_img)
-    return list_images_resized
+    list_images_resized = [new_measurements(img) for img in list_images]
+#     return list_images_resized
+    new_list_images = []
+    for img in list_images_resized:
+        if len(img.shape) < 3:
+            new_img = add_channels(img)
+        else:
+            new_img = img
+        new_list_images.append(new_img)
+    new_list_images_1 = []
+    for image in new_list_images:
+        reformatted_img = three_channels(image)
+        new_list_images_1.append(reformatted_img)
+    return new_list_images_1
 
 def test_data_with_positions(path):
     images_with_position = recognizing_characters(path)['images_with_position']
