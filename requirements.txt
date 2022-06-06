@@ -32,3 +32,4 @@ termcolor
 opencv-python
 uvicorn
 python-multipart
+Pillow
