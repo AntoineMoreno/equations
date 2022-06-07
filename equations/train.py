@@ -31,7 +31,7 @@ def compile_model(model):
 def make_prediction(model, img, class_names):
     prediction_scores= model.predict(np.expand_dims(img, axis=0))
     predicted_index = np.argmax(prediction_scores)
-    print("Predicted label: " + class_names[predicted_index])
+    return class_names[predicted_index]
 
 
 def plot_graph(hist):

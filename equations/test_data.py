@@ -4,9 +4,9 @@ import matplotlib.image as mpimg
 import numpy as np
 
 
-def recognizing_characters(path):
+def recognizing_characters(img_original):
     #read image
-    img_original = mpimg.imread(path)
+    #img_original = mpimg.imread(path)
     #add a channels
     if len(img_original.shape) < 3:
         img_original = np.expand_dims(img_original, -1)
