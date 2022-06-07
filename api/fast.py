@@ -6,6 +6,7 @@ from PIL import Image
 import cv2
 from tensorflow.keras import models
 
+#from equations.train import make_prediction
 
 import joblib
 
@@ -28,6 +29,7 @@ def index():
 
 @app.post("/equations")
 def get_image(file: UploadFile = File(...)):
+    print(type(file.file))
     image = np.array(Image.open(file.file))
 
     loaded_model = models.load_model("modelDL")
