@@ -8,7 +8,7 @@ import cv2
 from tensorflow.keras import models
 
 from equations.train import make_prediction
-from equations.test_data import test_data
+from equations.test_data import test_data, test_data_with_positions
 from equations.utils import to_latex, give_classes
 
 
@@ -38,19 +38,54 @@ def get_image(file: UploadFile = File(...)):
     image = np.array(Image.open(file.file))
 
     list_images=test_data(image)
+    positions = test_data_with_positions(image)
 
     class_names = give_classes()
 
     loaded_model = models.load_model("modelDL2-MT")
 
-    a = []
+    elements_latex = []
     for image in list_images:
-        a.append(to_latex(make_prediction(loaded_model, image, class_names)))
-    make_prediction(loaded_model, list_images[0], class_names)
-    b=''.join(a)
+        elements_latex.append(to_latex(make_prediction(loaded_model, image, class_names)))
 
-    print("OUI OUI OUI",len(list_images))
-    print(a)
+    positions_elements = []
+    for position in positions:
+        positions_elements.append(position[1])
+
+    equa_final = []
+    ignored_elements = []
+    for i in range(len(elements_latex)):
+        if positions_elements[i] == 'exponent':
+            equa_final.append("^{"+f"{elements_latex[i]}"+"}")
+        elif positions_elements[i] == 'index':
+            equa_final.append("_{"+f"{elements_latex[i]}"+"}")
+        elif positions_elements[i] == 'root':
+            j=1
+            radicandsss = []
+            while (i+j)<len(elements_latex) and positions_elements[i+j]== 'radicand':
+                radicandsss.append(elements_latex[i+j])
+                j+=1
+            r=''.join(radicandsss)
+            equa_final.append("\\sqrt{"+r+"}")
+        #elif positions_elements[i] == 'radicand':
+        #    equa_final.append("_{"+f"{elements_latex[i]}"+"}")
+        elif positions_elements[i] == 'radicand':
+            ignored_elements.append(elements_latex[i])
+        else:
+            equa_final.append(elements_latex[i])
+       # elif image[1] == 'index':
+            #d = f"_{{c}}"
+            #elif image[1] == 'root':
+            #   d = f"\sqrt{{c}}"
+            #elif image[1] == 'radicand':
+        #else:
+            #d=c
+
+    b=''.join(equa_final)
+
+    print("Nombre contours: ",len(list_images))
+    print("Resultat modele: ",elements_latex)
+    print("Resultat position: ",positions_elements)
 
 
     return {'code LaTeX' : b}
