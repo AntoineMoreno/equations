@@ -4,9 +4,9 @@ import matplotlib.image as mpimg
 import numpy as np
 
 
-def recognizing_characters(img_original):
+def recognizing_characters(path):
     #read image
-    #img_original = mpimg.imread(path)
+    img_original = mpimg.imread(path)
     #add a channels
     if len(img_original.shape) < 3:
         img_original = np.expand_dims(img_original, -1)
@@ -14,10 +14,29 @@ def recognizing_characters(img_original):
         img_new = cv2.cvtColor(img_original, cv2.COLOR_BGR2GRAY)
     else:
         img_new = img_original.copy()
+    #to delete upper white rows
+    list_white_rows =[]
+    i = 0
+    while np.all(img_new[i,:] == np.ones(img_new.shape[1:3], dtype=np.uint8)*255) == True:
+        list_white_rows.append(i)
+        if np.all(img_new[i,:] == np.ones(img_new.shape[1:3], dtype=np.uint8)*255) == False:
+            break
+        i += 1
+    img_resized_tmp = np.delete(img_new,list_white_rows[:-5],axis=0)
+    #to delete lower white rows
+    list_white_rows_lower =[]
+    i = 1
+    while np.all(img_resized_tmp[-i,:] == np.ones(img_resized_tmp.shape[1:3], dtype=np.uint8)*255) == True:
+        list_white_rows_lower.append(img_resized_tmp.shape[0]-i)
+        if np.all(img_resized_tmp[-i,:] == np.ones(img_resized_tmp.shape[1:3], dtype=np.uint8)*255) == False:
+            break
+        i += 1
+    img_resized = np.delete(img_resized_tmp,list_white_rows_lower[:-5],axis=0)
+    img_resized = np.expand_dims(img_resized, -1)
     #create a white image with same dimensions
-    white_image = np.ones(img_new.shape, dtype=np.uint8)*255
+    white_image = np.ones(img_resized.shape, dtype=np.uint8)*255
     #transform to binary --> 90 for now but it can be changed
-    ret, thresh = cv2.threshold(img_new,90,255,cv2.THRESH_BINARY)
+    ret, thresh = cv2.threshold(img_resized,90,255,cv2.THRESH_BINARY)
     #find contours, we can use none or simple as chain approx
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     h_list = hierarchy[0].tolist()
@@ -36,7 +55,7 @@ def recognizing_characters(img_original):
     #extract the contours only
     new_contours = [list_tuples_min[i][0] for i in range(len(list_tuples_min))]
     #add info about character position in the equation
-    full_image_h, full_image_w, full_image_channels = img_original.shape
+    full_image_h, full_image_w, full_image_channels = img_resized.shape
     tier1 = int(full_image_h/3)
     tier2 = int(full_image_h/3)*2
     tier3 = int(full_image_h/3)*3
@@ -50,6 +69,8 @@ def recognizing_characters(img_original):
     middle_x = [int((new_contours[c][0][:,0][:,0][np.where(new_contours[c][0][:,0][:,1] == min_y[c])[0][0]] + max_x[c])/2) for c in range(len(new_contours))]
     position = []
     for i in range(len(min_x)):
+        x_tmp,y_tmp,w_tmp,h_tmp = cv2.boundingRect(new_contours[i][0]) #i instead of 0 in the loop
+        contour_drawing_tmp = cv2.drawContours(white_image.copy(), new_contours[i], -1, (0,0,0),-1)
         if min_y[i] < tier1 and max_y[i] < int(1.5*tier1):
             position.append('exponent')
         elif max_y[i] > tier2 and min_y[i] > int(1.5*tier1):
@@ -57,7 +78,14 @@ def recognizing_characters(img_original):
         elif (min_y[i] < int(1.3*tier1) and \
             new_contours[i][0][:,0][:,1][np.where(new_contours[i][0][:,0][:,0] == max_x[i])[0][0]] < int(1.3*tier1) and \
             new_contours[i][0][:,0][:,1][np.where(new_contours[i][0][:,0][:,0] == middle_x[i])[0][0]] < int(1.3*tier1)) and \
-        abs(min_x[i]-new_contours[i][0][:,0][:,0][np.where(new_contours[i][0][:,0][:,1] == max_y[i])[0][0]]) < tier4:
+        abs(min_x[i]-new_contours[i][0][:,0][:,0][np.where(new_contours[i][0][:,0][:,1] == max_y[i])[0][0]]) < tier4 and \
+        all([np.all(contour_drawing_tmp[j][new_contours[i][0][:,0][:,0][np.where(new_contours[i][0][:,0][:,1] == min_y[i])[0][0]]] == np.ones(img_resized.shape[2], dtype=np.uint8)*255) == \
+     True for j in range(min_y[i]+10,max_y[i])]) and \
+        all([np.all(contour_drawing_tmp[j][max_x[i]] == np.ones(img_resized.shape[2], dtype=np.uint8)*255) == \
+     True for j in range(new_contours[i][0][:,0][:,1][np.where(new_contours[i][0][:,0][:,0] == max_x[i])[0][0]]+10,max_y[i])]) and \
+        all([np.all(contour_drawing_tmp[max_y[i]][j] == np.ones(img_resized.shape[2], dtype=np.uint8)*255) == \
+     True for j in range(new_contours[i][0][:,0][:,0][np.where(new_contours[0][0][:,0][:,1] == max_y[i])[0][0]]+10,max_x[i])]) and \
+        len(new_contours[i]) == 1:
             position.append('root')
         elif 'root' in position and min_x[i] > new_contours[position.index('root')][0][:,0][:,0][np.where(new_contours[position.index('root')][0][:,0][:,1] == max_y[position.index('root')])[0][0]] and max_x[i] < max_x[position.index('root')]:
             position.append('radicand')
