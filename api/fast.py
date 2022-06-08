@@ -41,12 +41,14 @@ def get_image(file: UploadFile = File(...)):
 
     class_names = give_classes()
 
-    loaded_model = models.load_model("modelDL")
+    loaded_model = models.load_model("modelDL2-MT")
 
     a = []
     for image in list_images:
         a.append(to_latex(make_prediction(loaded_model, image, class_names)))
     make_prediction(loaded_model, list_images[0], class_names)
     b=''.join(a)
+
+    print("OUI OUI OUI",len(list_images))
 
     return {'code LaTeX' : b}
