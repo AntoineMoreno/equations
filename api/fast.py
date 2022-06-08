@@ -50,5 +50,7 @@ def get_image(file: UploadFile = File(...)):
     b=''.join(a)
 
     print("OUI OUI OUI",len(list_images))
+    print(a)
+
 
     return {'code LaTeX' : b}
