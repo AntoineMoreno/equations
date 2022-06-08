@@ -8,4 +8,7 @@ raw_data/
 .env
 .python-version
 data.rar
+modelDL_MT/
 modelDL2-MT/
+notebooks/
+.ipynb
