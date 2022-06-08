@@ -34,3 +34,7 @@ def normalize(train_ds): #### problem
     normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
     image_batch, labels_batch = next(iter(normalized_ds))
     return image_batch, labels_batch
+
+def whitening_images(img):
+    ret, new_image = cv2.threshold(img,50,255,cv2.THRESH_BINARY)
+    return new_image
