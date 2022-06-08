@@ -21,15 +21,17 @@ def recognizing_characters(img_original):
     #find contours, we can use none or simple as chain approx
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     h_list = hierarchy[0].tolist()
-    contours = list(contours)
-    deleted_index = []
-    for i in h_list:
-        if i[-1] == -1:
-            deleted_index.append(h_list.index(i))
-    for d in sorted(deleted_index, reverse=True):
-        contours.pop(d)
+    list_contours = [[contours[i]] for i in range(len(contours))]
+    list_index_delete = [i for i in range(len(contours)) if h_list[i][-1] != 0]
+    for i in range(len(contours)):
+        if h_list[i][3] != 0 and h_list[i][3] != -1:
+            list_contours[h_list[i][3]].append(contours[i])
+        else:
+            pass
+    for i in sorted(list_index_delete, reverse=True):
+        list_contours.pop(i)
     #sort contours
-    list_tuples_min = [(contours[i],contours[i][:,0][:,0].min()) for i in range(len(contours))]
+    list_tuples_min = [(list_contours[i],list_contours[i][0][:,0][:,0].min()) for i in range(len(list_contours))]
     list_tuples_min.sort(key=lambda x: x[1])
     #extract the contours only
     new_contours = [list_tuples_min[i][0] for i in range(len(list_tuples_min))]
@@ -41,11 +43,11 @@ def recognizing_characters(img_original):
     tier4 = int(full_image_w/3)
     tier5 = int(full_image_w/3)*2
     tier6 = int(full_image_w/3)*3
-    min_x = [new_contours[c][:,0][:,0].min() for c in range(len(new_contours))]
-    min_y = [new_contours[c][:,0][:,1].min() for c in range(len(new_contours))]
-    max_x = [new_contours[c][:,0][:,0].max() for c in range(len(new_contours))]
-    max_y = [new_contours[c][:,0][:,1].max() for c in range(len(new_contours))]
-    middle_x = [int((new_contours[c][:,0][:,0][np.where(new_contours[c][:,0][:,1] == min_y[c])[0][0]]+ max_x[c])/2) for c in range(len(new_contours))]
+    min_x = [new_contours[c][0][:,0][:,0].min() for c in range(len(new_contours))]
+    min_y = [new_contours[c][0][:,0][:,1].min() for c in range(len(new_contours))]
+    max_x = [new_contours[c][0][:,0][:,0].max() for c in range(len(new_contours))]
+    max_y = [new_contours[c][0][:,0][:,1].max() for c in range(len(new_contours))]
+    middle_x = [int((new_contours[c][0][:,0][:,0][np.where(new_contours[c][0][:,0][:,1] == min_y[c])[0][0]] + max_x[c])/2) for c in range(len(new_contours))]
     position = []
     for i in range(len(min_x)):
         if min_y[i] < tier1 and max_y[i] < int(1.5*tier1):
@@ -53,19 +55,19 @@ def recognizing_characters(img_original):
         elif max_y[i] > tier2 and min_y[i] > int(1.5*tier1):
             position.append('index')
         elif (min_y[i] < int(1.3*tier1) and \
-            new_contours[i][:,0][:,1][np.where(new_contours[i][:,0][:,0] == max_x[i])[0][0]] < int(1.3*tier1) and \
-            new_contours[i][:,0][:,1][np.where(new_contours[i][:,0][:,0] == middle_x[i])[0][0]] < int(1.3*tier1)) and \
-        abs(min_x[i]-new_contours[i][:,0][:,0][np.where(new_contours[i][:,0][:,1] == max_y[i])[0][0]]) < tier4:
+            new_contours[i][0][:,0][:,1][np.where(new_contours[i][0][:,0][:,0] == max_x[i])[0][0]] < int(1.3*tier1) and \
+            new_contours[i][0][:,0][:,1][np.where(new_contours[i][0][:,0][:,0] == middle_x[i])[0][0]] < int(1.3*tier1)) and \
+        abs(min_x[i]-new_contours[i][0][:,0][:,0][np.where(new_contours[i][0][:,0][:,1] == max_y[i])[0][0]]) < tier4:
             position.append('root')
-        elif 'root' in position and min_x[i] > new_contours[position.index('root')][:,0][:,0][np.where(new_contours[position.index('root')][:,0][:,1] == max_y[position.index('root')])[0][0]] and max_x[i] < max_x[position.index('root')]:
+        elif 'root' in position and min_x[i] > new_contours[position.index('root')][0][:,0][:,0][np.where(new_contours[position.index('root')][0][:,0][:,1] == max_y[position.index('root')])[0][0]] and max_x[i] < max_x[position.index('root')]:
             position.append('radicand')
         else:
             position.append('regular')
     list_images = []
     for c in range(len(new_contours)):
-        x,y,w,h = cv2.boundingRect(new_contours[c])
-        contour_drawing = cv2.drawContours(white_image.copy(), new_contours, c, (0,0,0), 10)
-        img = contour_drawing[int(0.70*y):y+int(1.25*h),int(0.70*x):x+int(1.25*w)]
+        x,y,w,h = cv2.boundingRect(new_contours[c][0])
+        contour_drawing = cv2.drawContours(white_image.copy(), new_contours[c], -1, (0,0,0), -1)
+        img = contour_drawing[int(0.95*y):int(1.1*(y+h)),int(0.95*x):int(1.1*(x+w))]
         list_images.append(img)
     character_position = [(list_images[i],position[i]) for i in range(len(list_images))]
     return {'list_images':list_images,
