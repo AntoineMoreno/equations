@@ -4,9 +4,9 @@ import matplotlib.image as mpimg
 import numpy as np
 
 
-def recognizing_characters(path):
+def recognizing_characters(img_original):
     #read image
-    img_original = mpimg.imread(path)
+    #img_original = mpimg.imread(path)
     #add a channels
     if len(img_original.shape) < 3:
         img_original = np.expand_dims(img_original, -1)
@@ -31,8 +31,15 @@ def recognizing_characters(path):
         if np.all(img_resized_tmp[-i,:] == np.ones(img_resized_tmp.shape[1:3], dtype=np.uint8)*255) == False:
             break
         i += 1
+
+
     img_resized = np.delete(img_resized_tmp,list_white_rows_lower[:-5],axis=0)
-    img_resized = np.expand_dims(img_resized, -1)
+
+    if len(img_resized.shape) < 3:
+        img_resized = np.expand_dims(img_resized, -1)
+    else:
+        img_resized = img_resized.copy()
+
     #create a white image with same dimensions
     white_image = np.ones(img_resized.shape, dtype=np.uint8)*255
     #transform to binary --> 90 for now but it can be changed
@@ -84,7 +91,7 @@ def recognizing_characters(path):
         all([np.all(contour_drawing_tmp[j][max_x[i]] == np.ones(img_resized.shape[2], dtype=np.uint8)*255) == \
      True for j in range(new_contours[i][0][:,0][:,1][np.where(new_contours[i][0][:,0][:,0] == max_x[i])[0][0]]+10,max_y[i])]) and \
         all([np.all(contour_drawing_tmp[max_y[i]][j] == np.ones(img_resized.shape[2], dtype=np.uint8)*255) == \
-     True for j in range(new_contours[i][0][:,0][:,0][np.where(new_contours[0][0][:,0][:,1] == max_y[i])[0][0]]+10,max_x[i])]) and \
+     True for j in range(new_contours[i][0][:,0][:,0][np.where(new_contours[i][0][:,0][:,1] == max_y[i])[0][0]]+10,max_x[i])]) and \
         len(new_contours[i]) == 1:
             position.append('root')
         elif 'root' in position and min_x[i] > new_contours[position.index('root')][0][:,0][:,0][np.where(new_contours[position.index('root')][0][:,0][:,1] == max_y[position.index('root')])[0][0]] and max_x[i] < max_x[position.index('root')]:
