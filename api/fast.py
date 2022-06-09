@@ -42,7 +42,7 @@ def get_image(file: UploadFile = File(...)):
 
     class_names = give_classes()
 
-    loaded_model = models.load_model("modelDL2-MT")
+    loaded_model = models.load_model("math_model_v1")
 
     elements_latex = []
     for image in list_images:
@@ -62,14 +62,19 @@ def get_image(file: UploadFile = File(...)):
         elif positions_elements[i] == 'root':
             j=1
             radicandsss = []
-            while (i+j)<len(elements_latex) and positions_elements[i+j]== 'radicand':
-                radicandsss.append(elements_latex[i+j])
+            while (i+j)<len(elements_latex) and (positions_elements[i+j]== 'radicand' or positions_elements[i+j]== 'radicand-exp'or positions_elements[i+j]== 'radicand-index'):
+                if positions_elements[i+j] == 'radicand-exp':
+                    radicandsss.append("^{"+f"{elements_latex[i+j]}"+"}")
+                elif positions_elements[i+j] == 'radicand-index':
+                    radicandsss.append("_{"+f"{elements_latex[i+j]}"+"}")
+                else:
+                    radicandsss.append(elements_latex[i+j])
                 j+=1
             r=''.join(radicandsss)
             equa_final.append("\\sqrt{"+r+"}")
         #elif positions_elements[i] == 'radicand':
         #    equa_final.append("_{"+f"{elements_latex[i]}"+"}")
-        elif positions_elements[i] == 'radicand':
+        elif (positions_elements[i] == 'radicand' or positions_elements[i] == 'radicand-exp' or positions_elements[i] == 'radicand-index'):
             ignored_elements.append(elements_latex[i])
         else:
             equa_final.append(elements_latex[i])
