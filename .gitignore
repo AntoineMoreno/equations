@@ -13,3 +13,6 @@ modelDL2-MT/
 notebooks/
 .ipynb
 modelDL/
+modelExpanded/
+expanded_data/
+math_model_v1/

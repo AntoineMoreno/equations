@@ -3,7 +3,7 @@ FROM python:3.8.13-buster
 
 COPY api /api
 COPY equations /equations
-COPY modelDL /modelDL
+COPY math_model_v1 /math_model_v1
 COPY requirements.txt /requirements.txt
 
 RUN pip install --upgrade pip
