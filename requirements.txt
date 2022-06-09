@@ -33,3 +33,4 @@ opencv-python
 uvicorn
 python-multipart
 Pillow
+matplotlib

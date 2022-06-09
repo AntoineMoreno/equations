@@ -2,10 +2,8 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from PIL import Image
-import matplotlib.pyplot as plt
 
-import cv2
-from tensorflow.keras import models
+import tensorflow as tf
 
 from equations.train import make_prediction
 from equations.test_data import test_data, test_data_with_positions
@@ -42,7 +40,7 @@ def get_image(file: UploadFile = File(...)):
 
     class_names = give_classes()
 
-    loaded_model = models.load_model("math_model_v1")
+    loaded_model = tf.keras.models.load_model("math_model_v1")
 
     elements_latex = []
     for image in list_images:
