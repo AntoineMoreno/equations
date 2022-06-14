@@ -4,7 +4,7 @@
 
 Final project at the Wagon's Data Science bootcamp realized with Hanna Chartier and Jocelyn Romero in May 2022.  
 The aim of the project was to develop a solution to recognize handwritten math caracters and translate them in LaTeX thanks to Deep Learning.  
-It would fasten the way a LaTeX document is written 
+It would fasten the way a LaTeX document is written.
 
 ## Process
 
