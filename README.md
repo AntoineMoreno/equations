@@ -1,74 +1,17 @@
-# Data analysis
-- Document here the project: equations
-- Description: Project Description
-- Data Source:
-- Type of analysis:
+# equations
 
-Please document the project the better you can.
+## Presentation
 
-# Startup the project
+Final project at the Wagon's Data Science bootcamp realized with Hanna Chartier and Jocelyn Romero in May 2022.  
+The aim of the project was to develop a solution to recognize handwritten math caracters and translate them in LaTeX thanks to Deep Learning.  
+It would fasten the way a LaTeX document is written 
 
-The initial setup.
+## Process
 
-Create virtualenv and install the project:
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
-    pip install pip -U; pip install -r requirements.txt
-```
+When an image is passed to our program, thanks to the OpenCV librairy , each symbol of the mathematical sentence is extracted one by one (we used contour recognition). Then, each element is fed to a Convolutionnal Neural Network that will determine which symbol it is. Finally, each recognized symbol is mapped into its LaTeX transcription.  
+An API with a website were designed which could receive an image and translate it to LaTeX. It was also possible to draw our math symbols directly on the website.  
 
-Unittest test:
-```bash
-make clean install test
-```
+## Possible improvement
 
-Check for equations in gitlab.com/{group}.
-If your project is not set please add it:
-
-- Create a new project on `gitlab.com/{group}/equations`
-- Then populate it:
-
-```bash
-##   e.g. if group is "{group}" and project_name is "equations"
-git remote add origin git@github.com:{group}/equations.git
-git push -u origin master
-git push -u origin --tags
-```
-
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-equations-run
-```
-
-# Install
-
-Go to `https://github.com/{group}/equations` to see the project, manage issues,
-setup you ssh public key, ...
-
-Create a python3 virtualenv and activate it:
-
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv -ppython3 ~/venv ; source ~/venv/bin/activate
-```
-
-Clone the project and install it:
-
-```bash
-git clone git@github.com:{group}/equations.git
-cd equations
-pip install -r requirements.txt
-make clean install test                # install and test
-```
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-equations-run
-```
+Even if it is trained on a big dataset avaible on Kaggle (https://www.kaggle.com/datasets/xainano/handwrittenmathsymbols?select=data.rar), our CNN model can struggle to identify correctly the symbol. Maybe, some feature engineering could done or model tuning.  
+Our program is capable to extract squared root, exponents and index thanks to the OpenCV part. However, some improvements can be made in order to process integrals and fractions for instance.  
